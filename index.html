@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a0a0e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Javi & Kath 💕</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Jost:wght@300;400&display=swap" rel="stylesheet" />
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+
+  <style>
+    /* =============================================
+       VARIABLES
+    ============================================= */
+    :root {
+      --cream:  #fdf6ee;
+      --rose:   #f2c5be;
+      --blush:  #d98080;
+      --wine:   #8b1a2f;
+      --deep:   #3d0b18;
+      --gold:   #c9a96e;
+      --dark:   #110608;
+      --muted:  rgba(253,246,238,0.72);
+      --serif:  'Cormorant Garamond', Georgia, serif;
+      --script: 'Great Vibes', cursive;
+      --sans:   'Jost', sans-serif;
+      /* touch target mínimo Apple/Google: 44px */
+      --touch:  44px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: var(--serif);
+      overflow-x: hidden;
+      /* Evita rebote horizontal en iOS */
+      overscroll-behavior-x: none;
+    }
+
+    /* =============================================
+       CORAZONES FLOTANTES (global, liviano)
+    ============================================= */
+    #hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+    .hp {
+      position: absolute;
+      bottom: -50px;
+      opacity: 0;
+      animation: floatUp linear infinite;
+      will-change: transform, opacity;
+      /* Evita GPU overload en móvil */
+      font-size: 1rem;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(.8); opacity: 0; }
+      12%  { opacity: .65; }
+      88%  { opacity: .3; }
+      100% { transform: translateY(-105vh) scale(1.05); opacity: 0; }
+    }
+
+    /* =============================================
+       BOTÓN DE AUDIO — siempre accesible
+    ============================================= */
+    #audio-btn {
+      position: fixed;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      z-index: 1000;
+      width: var(--touch);
+      height: var(--touch);
+      min-width: var(--touch);
+      border-radius: 50%;
+      background: rgba(139,26,47,.85);
+      border: 1.5px solid var(--gold);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      /* sombra para visibilidad sobre cualquier fondo */
+      box-shadow: 0 4px 20px rgba(0,0,0,.6), 0 0 18px rgba(139,26,47,.5);
+      transition: transform .22s, background .22s;
+      touch-action: manipulation;
+    }
+    #audio-btn:active { transform: scale(.92); }
+
+    /* =============================================
+       NAV INFERIOR (mobile-friendly)
+    ============================================= */
+    #main-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 900;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.5rem 0.4rem calc(0.5rem + env(safe-area-inset-bottom));
+      background: rgba(17,6,8,.92);
+      border-top: 1px solid rgba(201,169,110,.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity .5s, transform .5s;
+    }
+    #main-nav.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #main-nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      min-width: var(--touch);
+      min-height: var(--touch);
+      justify-content: center;
+      color: rgba(201,169,110,.7);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 0.5rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: color .25s;
+      padding: 0 0.2rem;
+    }
+    #main-nav a .nav-icon { font-size: 1.1rem; line-height: 1; }
+    #main-nav a:active,
+    #main-nav a.active { color: var(--gold); }
+
+    /* Deja espacio para el nav inferior */
+    body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+
+    /* =============================================
+       SECTIONS
+    ============================================= */
+    section {
+      min-height: 100svh; /* svh = small viewport height, perfecto móvil */
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      padding: 4.5rem 1.25rem 2rem;
+    }
+
+    .si { /* section-inner */
+      max-width: 680px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .bg-ov {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* separador decorativo */
+    .sep {
+      text-align: center;
+      margin: 1.4rem 0;
+      color: var(--gold);
+      letter-spacing: .4em;
+      opacity: .55;
+      font-size: .95rem;
+    }
+
+    /* etiqueta de capítulo */
+    .cap-label {
+      font-family: var(--sans);
+      font-size: .58rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .85rem;
+      opacity: .8;
+    }
+
+    h2.ts { /* title script */
+      font-family: var(--script);
+      font-size: clamp(2.6rem, 10vw, 4.5rem);
+      color: var(--cream);
+      line-height: 1.05;
+      margin-bottom: .35rem;
+      text-shadow: 0 2px 28px rgba(139,26,47,.4);
+    }
+
+    h3.sub {
+      font-family: var(--serif);
+      font-size: clamp(.95rem, 3.5vw, 1.2rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--blush);
+      margin-bottom: 1.5rem;
+    }
+
+    p.body {
+      font-family: var(--serif);
+      font-size: clamp(1rem, 3.8vw, 1.12rem);
+      font-weight: 300;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    /* =============================================
+       INTRO
+    ============================================= */
+    #intro {
+      background: var(--dark);
+      text-align: center;
+      padding-top: 0;
+    }
+    #intro .bg-ov {
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 45%, rgba(139,26,47,.28) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 75%, rgba(201,169,110,.06) 0%, transparent 60%);
+    }
+    /* grain sutil */
+    #intro::after {
+      content:'';
+      position:absolute; inset:0; z-index:1; pointer-events:none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      background-size:200px;
+    }
+
+    #intro-c {
+      position: relative; z-index: 2;
+      animation: revealIntro 1.8s cubic-bezier(.16,1,.3,1) forwards;
+    }
+    @keyframes revealIntro {
+      from { opacity:0; transform:translateY(28px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .i-eye { /* eyebrow */
+      font-family: var(--sans);
+      font-size: .6rem;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      animation: fu 1.4s .3s both;
+    }
+    .i-name {
+      font-family: var(--script);
+      font-size: clamp(4rem, 18vw, 8rem);
+      line-height: .92;
+      display: block;
+      color: var(--cream);
+      text-shadow: 0 0 70px rgba(139,26,47,.55), 0 4px 32px rgba(0,0,0,.55);
+    }
+    .i-name:nth-child(2) { animation: fu 1.5s .5s both; }
+    .i-name:nth-child(4) { animation: fu 1.5s .7s both; }
+    .i-amp {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1.4rem, 6vw, 2.6rem);
+      color: var(--gold);
+      display: block;
+      margin: .2rem 0;
+      animation: fu 1.5s .6s both;
+    }
+    .i-sub {
+      font-family: var(--sans);
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--blush);
+      margin-top: 2rem;
+      animation: fu 1.5s 1s both;
+    }
+    .i-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2.8rem;
+      min-height: var(--touch);
+      padding: 0 2.2rem;
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      font-family: var(--sans);
+      font-size: .68rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 3px;
+      transition: background .28s, color .28s;
+      animation: fu 1.5s 1.3s both;
+      touch-action: manipulation;
+    }
+    .i-cta:active { background: var(--gold); color: var(--dark); }
+    .i-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      margin: 2.2rem auto 0;
+      animation: fu 1.5s 1.6s both;
+    }
+    @keyframes fu {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Pétalos intro */
+    .petal {
+      position:absolute; pointer-events:none;
+      opacity:0; animation:petalFall linear infinite;
+    }
+    @keyframes petalFall {
+      0%   { transform:translateY(-15px) rotate(0deg); opacity:0; }
+      10%  { opacity:.4; }
+      90%  { opacity:.15; }
+      100% { transform:translateY(102vh) rotate(360deg); opacity:0; }
+    }
+
+    /* =============================================
+       HISTORIA — timeline vertical (ideal móvil)
+    ============================================= */
+    #historia {
+      background: linear-gradient(170deg,#1a0a0e 0%,#240d14 50%,#1a0a0e 100%);
+      text-align: left;
+    }
+    #historia .bg-ov {
+      background: radial-gradient(ellipse 70% 60% at 15% 40%, rgba(201,169,110,.05) 0%, transparent 55%);
+    }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 2rem;
+      position: relative;
+      padding-left: 2.2rem;
+    }
+    /* línea vertical */
+    .timeline::before {
+      content:'';
+      position:absolute;
+      left: 8px; top:0; bottom:0;
+      width:1px;
+      background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+    }
+    .tl-item {
+      position: relative;
+      padding-bottom: 2.2rem;
+    }
+    .tl-item:last-child { padding-bottom: 0; }
+    /* dot */
+    .tl-item::before {
+      content:'';
+      position:absolute;
+      left: -1.7rem;
+      top: .35rem;
+      width: 10px; height: 10px;
+      border-radius:50%;
+      background: var(--wine);
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 10px rgba(201,169,110,.45);
+    }
+    .tl-item h4 {
+      font-family: var(--script);
+      font-size: 1.65rem;
+      color: var(--gold);
+      margin-bottom: .2rem;
+    }
+    .tl-item p {
+      font-family: var(--serif);
+      font-size: clamp(.88rem, 3.2vw, 1rem);
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    /* =============================================
+       CARTA
+    ============================================= */
+    #carta {
+      background: var(--deep);
+      text-align: center;
+    }
+    #carta .bg-ov {
+      background: radial-gradient(ellipse 85% 65% at 50% 50%, rgba(139,26,47,.18) 0%, transparent 65%);
+    }
+
+    .letter-wrap {
+      background: rgba(253,246,238,.04);
+      border: 1px solid rgba(201,169,110,.2);
+      border-radius: 6px;
+      padding: clamp(1.4rem, 5vw, 2.5rem) clamp(1.2rem, 5vw, 2.2rem);
+      position: relative;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      text-align: left;
+    }
+    .letter-wrap::before {
+      content:'❝';
+      position:absolute; top:-1rem; left:1.2rem;
+      font-size:3rem; color:var(--wine); line-height:1;
+    }
+    .letter-wrap::after {
+      content:'❞';
+      position:absolute; bottom:-1.8rem; right:1.2rem;
+      font-size:3rem; color:var(--wine); line-height:1;
+    }
+    .l-name {
+      font-family: var(--script);
+      font-size: 2rem;
+      color: var(--gold);
+      display: block;
+      margin-bottom: .8rem;
+    }
+    .l-body {
+      font-family: var(--serif);
+      font-size: clamp(1rem, 3.8vw, 1.15rem);
+      font-weight: 300;
+      line-height: 2;
+      color: var(--cream);
+    }
+    .l-sign {
+      font-family: var(--script);
+      font-size: 1.8rem;
+      color: var(--gold);
+      display: block;
+      margin-top: 1.5rem;
+      text-align: right;
+    }
+
+    /* =============================================
+       GALERÍA POLAROID — 2 col en móvil
+    ============================================= */
+    #galeria {
+      background: linear-gradient(160deg,#1a0a0e 0%,#220d14 100%);
+      text-align: center;
+    }
+    #galeria .bg-ov {
+      background: radial-gradient(ellipse 60% 40% at 50% 85%, rgba(201,169,110,.05) 0%, transparent 55%);
+    }
+
+    .pol-grid {
+      display: grid;
+      /* 2 columnas en móvil, más si hay espacio */
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    @media (min-width: 480px) {
+      .pol-grid { grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    }
+
+    .pol {
+      background: #fdf6ee;
+      padding: .6rem .6rem 2.4rem;
+      border-radius: 3px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.55), 0 2px 5px rgba(0,0,0,.3);
+      transform: rotate(var(--r, -2deg));
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      /* Activo en touch */
+    }
+    .pol:active {
+      transform: rotate(0deg) scale(1.07) translateY(-4px);
+      box-shadow: 0 16px 50px rgba(0,0,0,.65), 0 0 24px rgba(139,26,47,.3);
+      z-index: 10;
+    }
+    .pol-ph {
+      width:100%; aspect-ratio:1;
+      display:flex; align-items:center; justify-content:center;
+      font-size: clamp(1.8rem, 8vw, 2.6rem);
+      background: linear-gradient(135deg,#e8a5a0 0%,#8b1a2f 100%);
+    }
+    .pol-ph img {
+      width:100%; height:100%; object-fit:cover; display:block;
+    }
+    .pol-cap {
+      font-family: var(--script);
+      font-size: clamp(.85rem, 3.5vw, 1rem);
+      color: #3d0b18;
+      text-align: center;
+      margin-top: .4rem;
+      line-height: 1.2;
+    }
+
+    .hint-tap {
+      font-family: var(--serif);
+      font-size: .78rem;
+      font-style: italic;
+      color: rgba(253,246,238,.3);
+      margin-top: 1.4rem;
+      text-align: center;
+    }
+
+    /* =============================================
+       LIGHTBOX — optimizado touch
+    ============================================= */
+    #lb {
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(17,6,8,.97);
+      z-index:2000;
+      align-items:center; justify-content:center; flex-direction:column;
+      gap:.8rem;
+      padding:1.5rem;
+    }
+    #lb.open { display:flex; }
+    #lb-img {
+      max-width:92vw; max-height:72vh;
+      border-radius:4px;
+      box-shadow:0 20px 60px rgba(0,0,0,.7);
+    }
+    #lb-cap {
+      font-family:var(--script);
+      font-size:1.6rem;
+      color:var(--gold);
+    }
+    #lb-close {
+      position:absolute;
+      top:1rem; right:1rem;
+      background:rgba(139,26,47,.6);
+      border:1px solid rgba(201,169,110,.3);
+      color:var(--cream);
+      font-size:1.2rem;
+      width:var(--touch); height:var(--touch);
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+
+    /* =============================================
+       RAZONES — 1 col en móvil
+    ============================================= */
+    #razones {
+      background: var(--dark);
+      text-align: left;
+    }
+    #razones .bg-ov {
+      background:
+        radial-gradient(ellipse 60% 70% at 0% 50%, rgba(139,26,47,.1) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 100% 30%, rgba(201,169,110,.05) 0%, transparent 50%);
+    }
+
+    .raz-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    @media (min-width: 520px) {
+      .raz-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .raz-card {
+      border: 1px solid rgba(201,169,110,.18);
+      border-radius: 8px;
+      padding: 1.4rem 1.2rem;
+      background: rgba(253,246,238,.03);
+      transition: border-color .3s, transform .3s, box-shadow .3s;
+    }
+    .raz-card:active {
+      border-color: var(--gold);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(139,26,47,.2);
+    }
+    .raz-num {
+      font-family: var(--script);
+      font-size: 2.4rem;
+      color: var(--wine);
+      line-height:1;
+      margin-bottom: .3rem;
+    }
+    .raz-title {
+      font-family: var(--serif);
+      font-size: clamp(.95rem, 3.5vw, 1.05rem);
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .4rem;
+    }
+    .raz-desc {
+      font-family: var(--serif);
+      font-size: clamp(.85rem, 3.2vw, .92rem);
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* =============================================
+       FUTURO
+    ============================================= */
+    #futuro {
+      background: linear-gradient(165deg,#2d0f1a 0%,#1a0a0e 100%);
+      text-align: center;
+    }
+    #futuro .bg-ov {
+      background: radial-gradient(ellipse 80% 60% at 50% 60%, rgba(139,26,47,.16) 0%, transparent 65%);
+    }
+
+    .fut-box {
+      border:1px solid rgba(201,169,110,.22);
+      border-radius:8px;
+      padding:clamp(1.5rem,5vw,2.5rem) clamp(1.2rem,4vw,2rem);
+      margin-top:2rem;
+      background:rgba(139,26,47,.05);
+    }
+    .dream-wrap {
+      display:flex; flex-wrap:wrap;
+      justify-content:center;
+      gap:.7rem;
+      margin-top:1.8rem;
+    }
+    .dtag {
+      border:1px solid rgba(201,169,110,.4);
+      border-radius:100px;
+      padding:.5rem 1.1rem;
+      font-family:var(--serif);
+      font-size:clamp(.82rem,3.2vw,.92rem);
+      color:var(--gold);
+      transition:background .28s, color .28s;
+      touch-action:manipulation;
+    }
+    .dtag:active { background:var(--gold); color:var(--dark); }
+
+    /* =============================================
+       SECCIÓN SECRETA
+    ============================================= */
+    #secreta {
+      background: var(--dark);
+      text-align: center;
+    }
+    #secreta .bg-ov {
+      background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(139,26,47,.14) 0%, transparent 60%);
+    }
+
+    .lock-ico {
+      font-size:3.2rem;
+      display:block;
+      margin-bottom:1.2rem;
+      animation:pulseLock 2.5s ease-in-out infinite;
+    }
+    @keyframes pulseLock {
+      0%,100%{ transform:scale(1); filter:drop-shadow(0 0 6px rgba(201,169,110,0)); }
+      50%    { transform:scale(1.07); filter:drop-shadow(0 0 18px rgba(201,169,110,.55)); }
+    }
+
+    .pass-wrap { margin-top:1.8rem; }
+    .pass-in {
+      background:rgba(253,246,238,.06);
+      border:1.5px solid rgba(201,169,110,.3);
+      border-radius:6px;
+      padding:.85rem 1.3rem;
+      font-family:var(--serif);
+      font-size:1.15rem;
+      color:var(--cream);
+      text-align:center;
+      letter-spacing:.3em;
+      outline:none;
+      width:min(220px, 80vw);
+      /* Evita zoom en iOS al hacer focus */
+      font-size: 16px;
+      transition:border-color .3s;
+    }
+    .pass-in:focus { border-color:var(--gold); }
+    .pass-in::placeholder { color:rgba(253,246,238,.3); letter-spacing:.15em; }
+
+    .pass-btn {
+      display:flex; align-items:center; justify-content:center;
+      margin:1.1rem auto 0;
+      min-height:var(--touch);
+      padding:0 2.2rem;
+      background:transparent;
+      border:1.5px solid var(--gold);
+      color:var(--gold);
+      font-family:var(--sans);
+      font-size:.68rem;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      border-radius:4px;
+      cursor:pointer;
+      transition:background .28s, color .28s;
+      touch-action:manipulation;
+      width:min(220px, 80vw);
+    }
+    .pass-btn:active { background:var(--gold); color:var(--dark); }
+
+    .pass-hint {
+      font-family:var(--serif);
+      font-size:.82rem;
+      font-style:italic;
+      color:rgba(253,246,238,.35);
+      margin-top:.7rem;
+    }
+    .pass-err {
+      font-family:var(--serif);
+      font-size:.85rem;
+      color:#e07070;
+      margin-top:.7rem;
+      min-height:1.2rem;
+    }
+
+    #sec-content {
+      display:none;
+      margin-top:2rem;
+      animation:fu .8s both;
+    }
+    .sec-inner {
+      border:1px solid rgba(201,169,110,.28);
+      border-radius:10px;
+      padding:clamp(1.4rem,5vw,2.2rem) clamp(1.2rem,4vw,2rem);
+      background:rgba(139,26,47,.08);
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background:var(--dark);
+      text-align:center;
+      padding:2.5rem 1.5rem calc(80px + env(safe-area-inset-bottom));
+      border-top:1px solid rgba(201,169,110,.1);
+    }
+    footer .fs {
+      font-family:var(--script);
+      font-size:2.2rem;
+      color:var(--gold);
+      display:block;
+      margin-bottom:.4rem;
+    }
+    footer p {
+      font-family:var(--sans);
+      font-size:.6rem;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      color:rgba(253,246,238,.3);
+    }
+
+    /* =============================================
+       AOS tweak
+    ============================================= */
+    [data-aos] { transition-timing-function:cubic-bezier(.16,1,.3,1) !important; }
+  </style>
+</head>
+<body>
+
+  <!-- CORAZONES FLOTANTES -->
+  <div id="hearts"></div>
+
+  <!--
+    AUDIO: sube tu MP3 a /audio/cancion.mp3 en el repositorio
+    O reemplaza el src con un enlace directo al archivo.
+  -->
+  <audio id="bg-audio" loop preload="auto">
+    <source src="audio/cancion.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- BOTÓN AUDIO -->
+  <button id="audio-btn" aria-label="Play/Pause música">♪</button>
+
+  <!-- NAV INFERIOR (aparece tras scroll del intro) -->
+  <nav id="main-nav" role="navigation" aria-label="Capítulos">
+    <a href="#historia">
+      <span class="nav-icon">📖</span>Historia
+    </a>
+    <a href="#carta">
+      <span class="nav-icon">💌</span>Carta
+    </a>
+    <a href="#galeria">
+      <span class="nav-icon">📷</span>Galería
+    </a>
+    <a href="#razones">
+      <span class="nav-icon">💕</span>Razones
+    </a>
+    <a href="#futuro">
+      <span class="nav-icon">🌟</span>Futuro
+    </a>
+    <a href="#secreta">
+      <span class="nav-icon">🔒</span>Secreto
+    </a>
+  </nav>
+
+  <!-- ========== INTRO ========== -->
+  <section id="intro">
+    <div class="bg-ov"></div>
+    <div id="intro-c">
+      <p class="i-eye">Un regalo hecho con el corazón</p>
+      <span class="i-name">Javi</span>
+      <span class="i-amp">&</span>
+      <span class="i-name">Kath</span>
+      <p class="i-sub">✦ Siete meses de amor ✦</p>
+      <a href="#historia" class="i-cta">Abrir nuestro libro</a>
+      <div class="i-line"></div>
+    </div>
+  </section>
+
+  <!-- ========== NUESTRA HISTORIA ========== -->
+  <section id="historia">
+    <div class="bg-ov"></div>
+    <div class="si">
+      <p class="cap-label" data-aos="fade-up">Capítulo I</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">Nuestra Historia</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Cómo dos almas encontraron su camino</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <div class="timeline">
+        <div class="tl-item" data-aos="fade-up" data-aos-delay="0">
+          <h4>El primer mensaje</h4>
+          <p>Todo comenzó con un mensaje. Unas palabras simples que cambiarían todo para siempre.</p>
+        </div>
+        <div class="tl-item" data-aos="fade-up" data-aos-delay="100">
+          <h4>La primera llamada</h4>
+          <p>Esa voz al otro lado del teléfono que se volvió el sonido favorito del mundo.</p>
+        </div>
+        <div class="tl-item" data-aos="fade-up" data-aos-delay="200">
+          <h4>Nos hicimos novios</h4>
+          <p>El día en que lo oficial se convirtió en el principio de algo hermoso e irrepetible.</p>
+        </div>
+        <div class="tl-item" data-aos="fade-up" data-aos-delay="300">
+          <h4>Siete meses juntos</h4>
+          <p>Siete meses de risas, lágrimas compartidas, apoyo incondicional y amor que crece cada día.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CARTA PRINCIPAL ========== -->
+  <section id="carta">
+    <div class="bg-ov"></div>
+    <div class="si">
+      <p class="cap-label" data-aos="fade-up">Capítulo II</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">La Carta</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Las palabras que salen del corazón</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <div class="letter-wrap" data-aos="fade-up" data-aos-delay="260">
+        <span class="l-name">Kath,</span>
+        <p class="l-body">
+          ya 7 meses juntos, siete meses en los que reimos juntos, lloramos juntos y gozamos juntos
+          aun recuerdo el primer mensaje que mande, la primera llamada, el dia en el que nos hicimos novios
+          y creme que soy feliz, soy el mas feliz junto a ti, te amo, te amo como no tiene ni idea,
+          incluso tengo una galeria donde guardo todo lo bonito que me das y lo guardo como un lindo recuerdo,
+          realmente estoy muy agradecido contigo ya que me alegrabas los dias cuando pase por el infierno
+          de la militar y me has escucado y te has preocupado por mi,
+          kath feliz 7 meses juntos espero y este regalo te pueda hacer feliz,
+          asi como yo lo soy contigo
+        </p>
+        <span class="l-sign">— Jav </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== GALERÍA ========== -->
+  <section id="galeria">
+    <div class="bg-ov"></div>
+    <div class="si" style="max-width:800px">
+      <p class="cap-label" data-aos="fade-up">Capítulo III</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">Galería de Momentos</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Cada foto, un recuerdo que guardo con amor</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <!--
+        ═══════════════════════════════════════════
+        CÓMO AGREGAR TUS FOTOS:
+        1. Sube tus fotos a la carpeta /images/ del repositorio.
+        2. Reemplaza el contenido de .pol-ph:
+           <div class="pol-ph"><img src="images/foto1.jpg" alt="descripción"></div>
+        3. Cambia .pol-cap con tu texto.
+        ═══════════════════════════════════════════
+      -->
+      <div class="pol-grid">
+        <div class="pol" style="--r:-3deg" data-aos="zoom-in" data-aos-delay="0"
+             onclick="openLb('📸','Nuestro primer recuerdo')">
+          <div class="pol-ph">📸</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+        <div class="pol" style="--r:2deg" data-aos="zoom-in" data-aos-delay="60"
+             onclick="openLb('💕','Momentos contigo')">
+          <div class="pol-ph">💕</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+        <div class="pol" style="--r:-1.5deg" data-aos="zoom-in" data-aos-delay="120"
+             onclick="openLb('🌹','Siempre juntos')">
+          <div class="pol-ph">🌹</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+        <div class="pol" style="--r:2.5deg" data-aos="zoom-in" data-aos-delay="180"
+             onclick="openLb('✨','Los mejores momentos')">
+          <div class="pol-ph">✨</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+        <div class="pol" style="--r:-2deg" data-aos="zoom-in" data-aos-delay="240"
+             onclick="openLb('💌','Recuerdos que atesoro')">
+          <div class="pol-ph">💌</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+        <div class="pol" style="--r:1deg" data-aos="zoom-in" data-aos-delay="300"
+             onclick="openLb('🤍','Para siempre')">
+          <div class="pol-ph">🤍</div>
+          <p class="pol-cap">Tu foto aquí</p>
+        </div>
+      </div>
+      <p class="hint-tap">— Toca cada Polaroid para ampliarla —</p>
+    </div>
+  </section>
+
+  <!-- ========== RAZONES ========== -->
+  <section id="razones">
+    <div class="bg-ov"></div>
+    <div class="si" style="max-width:800px">
+      <p class="cap-label" data-aos="fade-up">Capítulo IV</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">Razones por las que te Amo</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Y la lista sigue creciendo cada día</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <div class="raz-grid">
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="0">
+          <div class="raz-num">01</div>
+          <div class="raz-title">Tu forma de escucharme</div>
+          <p class="raz-desc">Nunca me hiciste sentir que mis problemas eran pequeños. Siempre estuviste, siempre escuchaste.</p>
+        </div>
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="60">
+          <div class="raz-num">02</div>
+          <div class="raz-title">Me alegraste los días difíciles</div>
+          <p class="raz-desc">Cuando pasé por el infierno de la militar, tú eras la luz al final del día. Gracias por eso.</p>
+        </div>
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="120">
+          <div class="raz-num">03</div>
+          <div class="raz-title">Tu preocupación genuina</div>
+          <p class="raz-desc">Siempre preguntando cómo estoy, siempre pendiente. Eso vale más de lo que imaginas.</p>
+        </div>
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="180">
+          <div class="raz-num">04</div>
+          <div class="raz-title">Reímos juntos</div>
+          <p class="raz-desc">Hay risas que solo existen contigo. Las guardo como el tesoro más bonito que tengo.</p>
+        </div>
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="240">
+          <div class="raz-num">05</div>
+          <div class="raz-title">Me haces el más feliz</div>
+          <p class="raz-desc">No es exageración. Junto a ti soy el más feliz, y eso es lo más real que he sentido.</p>
+        </div>
+        <div class="raz-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="raz-num">06</div>
+          <div class="raz-title">Todo lo bonito que me das</div>
+          <p class="raz-desc">Guardo todo, cada detalle, cada momento. Porque todo lo que viene de ti es un regalo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FUTURO ========== -->
+  <section id="futuro">
+    <div class="bg-ov"></div>
+    <div class="si">
+      <p class="cap-label" data-aos="fade-up">Capítulo V</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">Nuestro Futuro</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Todo lo que sueño vivir contigo</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <div class="fut-box" data-aos="fade-up" data-aos-delay="260">
+        <p class="body" style="text-align:center">
+          Hay un futuro que imagino contigo, lleno de momentos simples y extraordinarios al mismo tiempo.
+          Quiero seguir conociendo cada parte de ti, seguir siendo tu refugio como tú eres el mío,
+          y construir juntos todos los recuerdos que aún no hemos vivido.
+        </p>
+        <div class="dream-wrap">
+          <span class="dtag">🌍 Viajar juntos</span>
+          <span class="dtag">🎬 Mil películas más</span>
+          <span class="dtag">☕ Mañanas tranquilas</span>
+          <span class="dtag">📷 Más fotos</span>
+          <span class="dtag">🤝 Seguir apoyándonos</span>
+          <span class="dtag">🌹 Muchos aniversarios más</span>
+          <span class="dtag">🎶 Canciones nuestras</span>
+          <span class="dtag">💌 Seguir escribiéndonos</span>
+        </div>
+        <p class="body" style="text-align:center;margin-top:2rem;font-style:italic">
+          "El futuro que más me importa es el que tiene tu nombre en él."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SECCIÓN SECRETA ========== -->
+  <section id="secreta">
+    <div class="bg-ov"></div>
+    <div class="si" style="text-align:center">
+      <p class="cap-label" data-aos="fade-up">Capítulo Especial</p>
+      <h2 class="ts" data-aos="fade-up" data-aos-delay="80">Sección Secreta</h2>
+      <h3 class="sub" data-aos="fade-up" data-aos-delay="150">Solo para los ojos de Kath</h3>
+      <div class="sep" data-aos="fade-up" data-aos-delay="200">— ✦ —</div>
+
+      <div data-aos="fade-up" data-aos-delay="260">
+        <span class="lock-ico" id="lock-ico">🔒</span>
+        <p class="body">Hay algo especial aquí esperando por ti.<br/>Ingresa la clave para descubrirlo.</p>
+
+        <div class="pass-wrap">
+          <input type="password" id="pass-in" class="pass-in"
+            placeholder="••••••" maxlength="20" autocomplete="off"
+            inputmode="text" />
+          <p class="pass-hint">Pista: nuestra fecha especial 🌹</p>
+          <button class="pass-btn" onclick="checkPass()">Abrir ✦</button>
+          <p class="pass-err" id="pass-err"></p>
+        </div>
+
+        <!-- CONTENIDO SECRETO -->
+        <div id="sec-content">
+          <div class="sec-inner">
+            <span style="font-size:2.2rem;display:block;margin-bottom:1rem">🤍</span>
+            <h3 style="font-family:var(--script);font-size:2.3rem;color:var(--gold);margin-bottom:1.2rem">
+              ¡Lo encontraste, Kath!
+            </h3>
+            <p class="body" style="text-align:center">
+              Este es el rincón más especial de todo el sitio, solo para ti.<br/><br/>
+              Quiero que sepas que eres la persona más importante en mi vida.
+              Cada momento contigo lo guardo como oro. Gracias por existir,
+              por elegirme, por quedarte.<br/><br/>
+              Este regalo es solo una pequeña muestra de todo lo que siento.
+              Te amo hoy, mañana, y todos los días que vengan. 💕
+            </p>
+            <p style="font-family:var(--script);font-size:1.8rem;color:var(--gold);margin-top:1.3rem">
+              — Para siempre tuyo, Javi
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="fs">Javi & Kath</span>
+    <p>✦ 7 meses de amor ✦ Hecho con el corazón ✦</p>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lb" role="dialog" aria-modal="true">
+    <button id="lb-close" onclick="closeLb()" aria-label="Cerrar">✕</button>
+    <div id="lb-img" style="font-size:5rem;text-align:center;padding:1.5rem"></div>
+    <p id="lb-cap"></p>
+  </div>
+
+  <!-- AOS -->
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <script>
+    /* =============================================
+       AOS
+    ============================================= */
+    AOS.init({ duration:850, offset:60, once:true });
+
+    /* =============================================
+       NAV — aparece tras salir del intro
+    ============================================= */
+    const nav = document.getElementById('main-nav');
+    new IntersectionObserver(
+      ([e]) => nav.classList.toggle('visible', !e.isIntersecting),
+      { threshold: 0.25 }
+    ).observe(document.getElementById('intro'));
+
+    /* =============================================
+       FLOATING HEARTS (menos partículas en móvil)
+    ============================================= */
+    const hEl = document.getElementById('hearts');
+    const hList = ['❤️','💕','💖','💗','🌹','✨','💌','💝'];
+    const isMobile = window.innerWidth < 600;
+    const heartInterval = isMobile ? 3000 : 1800;
+
+    function spawnHeart() {
+      const s = document.createElement('span');
+      s.className = 'hp';
+      s.textContent = hList[Math.floor(Math.random() * hList.length)];
+      s.style.left = Math.random() * 96 + 'vw';
+      s.style.fontSize = (.65 + Math.random() * .7) + 'rem';
+      const d = 9 + Math.random() * 9;
+      s.style.animationDuration = d + 's';
+      s.style.animationDelay = Math.random() * 3 + 's';
+      hEl.appendChild(s);
+      setTimeout(() => s.remove(), (d + 4) * 1000);
+    }
+    setInterval(spawnHeart, heartInterval);
+    for (let i = 0; i < (isMobile ? 3 : 5); i++) setTimeout(spawnHeart, i * 500);
+
+    /* =============================================
+       INTRO PÉTALOS
+    ============================================= */
+    const introEl = document.getElementById('intro');
+    const pEmj = ['🌸','🌺','🌹','✨'];
+    const pCount = isMobile ? 7 : 12;
+    for (let i = 0; i < pCount; i++) {
+      const p = document.createElement('span');
+      p.className = 'petal';
+      p.textContent = pEmj[Math.floor(Math.random() * pEmj.length)];
+      p.style.left = Math.random() * 100 + '%';
+      p.style.fontSize = (.55 + Math.random() * .6) + 'rem';
+      const d = 7 + Math.random() * 7;
+      p.style.animationDuration = d + 's';
+      p.style.animationDelay = Math.random() * 5 + 's';
+      introEl.appendChild(p);
+    }
+
+    /* =============================================
+       AUDIO
+       El audio se activa al primer toque (política iOS)
+    ============================================= */
+    const audio = document.getElementById('bg-audio');
+    const aBtn  = document.getElementById('audio-btn');
+    let playing = false;
+
+    function tryPlay() {
+      audio.volume = 0.22;
+      audio.play().then(() => {
+        playing = true;
+        aBtn.textContent = '♫';
+      }).catch(() => {});
+    }
+
+    // Primer toque en cualquier lugar → autoplay
+    document.addEventListener('touchstart', () => {
+      if (!playing) tryPlay();
+    }, { once: true });
+    document.addEventListener('click', () => {
+      if (!playing) tryPlay();
+    }, { once: true });
+
+    aBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (playing) {
+        audio.pause();
+        playing = false;
+        aBtn.textContent = '♪';
+      } else {
+        tryPlay();
+      }
+    });
+
+    /* =============================================
+       LIGHTBOX (touch-friendly)
+    ============================================= */
+    function openLb(emoji, cap) {
+      document.getElementById('lb-img').textContent = emoji;
+      document.getElementById('lb-cap').textContent = cap;
+      document.getElementById('lb').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLb() {
+      document.getElementById('lb').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    // Cerrar tocando el fondo
+    document.getElementById('lb').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeLb();
+    });
+    // Swipe down para cerrar lightbox
+    let touchStartY = 0;
+    document.getElementById('lb').addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    document.getElementById('lb').addEventListener('touchend', e => {
+      if (e.changedTouches[0].clientY - touchStartY > 60) closeLb();
+    }, { passive: true });
+
+    /* =============================================
+       CONTRASEÑA SECRETA
+       Cambia '7meses' por tu clave
+    ============================================= */
+    const SECRET = '7meses'; // ← CAMBIA AQUÍ
+
+    function checkPass() {
+      const val = document.getElementById('pass-in').value.trim();
+      const err = document.getElementById('pass-err');
+      if (val === SECRET) {
+        err.textContent = '';
+        document.querySelector('.pass-wrap').style.display = 'none';
+        document.getElementById('lock-ico').textContent = '🔓';
+        document.getElementById('sec-content').style.display = 'block';
+        // mini confetti de corazones
+        for (let i = 0; i < 10; i++) setTimeout(spawnHeart, i * 150);
+        // scroll suave al contenido secreto
+        setTimeout(() => {
+          document.getElementById('sec-content').scrollIntoView({ behavior:'smooth', block:'start' });
+        }, 400);
+      } else {
+        err.textContent = 'Esa no es la clave 🌹 inténtalo de nuevo';
+        const inp = document.getElementById('pass-in');
+        inp.value = '';
+        inp.style.borderColor = '#e07070';
+        inp.focus();
+        // vibración háptica en móvil
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+        setTimeout(() => { inp.style.borderColor = 'rgba(201,169,110,.3)'; }, 1200);
+      }
+    }
+
+    document.getElementById('pass-in').addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkPass();
+    });
+
+    /* =============================================
+       NAV — marcar sección activa al hacer scroll
+    ============================================= */
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('#main-nav a');
+
+    const secObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('active'));
+          const link = document.querySelector(`#main-nav a[href="#${e.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => { if (s.id !== 'intro') secObs.observe(s); });
+  </script>
+</body>
+</html>
